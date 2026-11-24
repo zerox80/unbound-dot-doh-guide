@@ -1,0 +1,13 @@
+#!/bin/sh
+# Wird von certbot nach jeder Ausstellung/Erneuerung des DNS-Zertifikats aufgerufen.
+# Kopiert Zertifikat + Schluessel nach /etc/unbound/tls, weil Unbound per AppArmor
+# nur /etc/unbound/** lesen darf und /etc/letsencrypt nur fuer root lesbar ist.
+set -e
+SRC="${RENEWED_LINEAGE:-/etc/letsencrypt/live/dns.example.com}"
+DST=/etc/unbound/tls
+install -d -m 0750 -o root -g unbound "$DST"
+install -m 0644 -o root -g unbound "$SRC/fullchain.pem" "$DST/fullchain.pem"
+install -m 0640 -o root -g unbound "$SRC/privkey.pem"   "$DST/privkey.pem"
+# Unbound laedt das Zertifikat nur beim Start; nginx (DoH) beim Reload
+if [ -f /etc/unbound/unbound.conf.d/20-dot.conf ]; then systemctl restart unbound; fi
+systemctl reload nginx
