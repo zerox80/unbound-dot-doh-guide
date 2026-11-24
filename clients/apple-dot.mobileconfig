@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  DNS-over-TLS fuer iPhone, iPad und Mac.
+  Vor dem Installieren:
+    1. dns.example.com und 203.0.113.10 (ggf. 2001:db8::10) durch eigene Werte ersetzen
+    2. Beide PayloadUUID-Werte durch neue UUIDs ersetzen (PowerShell: New-Guid, macOS/Linux: uuidgen)
+-->
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>PayloadContent</key>
+  <array>
+    <dict>
+      <key>DNSSettings</key>
+      <dict>
+        <key>DNSProtocol</key>
+        <string>TLS</string>
+        <key>ServerName</key>
+        <string>dns.example.com</string>
+        <key>ServerAddresses</key>
+        <array>
+          <string>203.0.113.10</string>
+        </array>
+      </dict>
+      <key>PayloadDisplayName</key>
+      <string>Eigener DNS (DoT)</string>
+      <key>PayloadIdentifier</key>
+      <string>com.example.dns.dot.settings</string>
+      <key>PayloadType</key>
+      <string>com.apple.dnsSettings.managed</string>
+      <key>PayloadUUID</key>
+      <string>7B4D2E6A-0000-4000-8000-000000000003</string>
+      <key>PayloadVersion</key>
+      <integer>1</integer>
+    </dict>
+  </array>
+  <key>PayloadDescription</key>
+  <string>Leitet alle DNS-Anfragen verschluesselt per DNS-over-TLS an den eigenen Resolver.</string>
+  <key>PayloadDisplayName</key>
+  <string>Eigener DNS (DoT)</string>
+  <key>PayloadIdentifier</key>
+  <string>com.example.dns.dot</string>
+  <key>PayloadRemovalDisallowed</key>
+  <false/>
+  <key>PayloadType</key>
+  <string>Configuration</string>
+  <key>PayloadUUID</key>
+  <string>7B4D2E6A-0000-4000-8000-000000000004</string>
+  <key>PayloadVersion</key>
+  <integer>1</integer>
+</dict>
+</plist>
