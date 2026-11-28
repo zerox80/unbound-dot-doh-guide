@@ -50,6 +50,7 @@ Gerät ── DoH ───► │ TCP 443 ► nginx (TLS, HTTP/2,         │  
 | [`config/nginx/dns-doh.conf`](config/nginx/dns-doh.conf) | nginx-vHost für DoH und Let's-Encrypt-Prüfung |
 | [`scripts/unbound-tls-deploy`](scripts/unbound-tls-deploy) | certbot-Deploy-Hook: Zertifikat an Unbound übergeben |
 | [`scripts/dns-selftest.sh`](scripts/dns-selftest.sh) | Automatischer Selbsttest mit 24 Prüfungen |
+| [`scripts/dns-speedtest.sh`](scripts/dns-speedtest.sh) | Geschwindigkeitstest: zeigt, an welcher Stelle Zeit verloren geht |
 | [`clients/`](clients/) | Konfigurationsprofile für iPhone, iPad und Mac (DoH und DoT) |
 
 ## Schnellstart

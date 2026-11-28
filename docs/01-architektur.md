@@ -52,6 +52,15 @@ Unbound spricht DoH ausschließlich über **HTTP/2**. nginx' `proxy_pass` sprich
 
 Unbound läuft dafür auf `127.0.0.1:8053` mit `http-notls-downstream: yes`, also ohne TLS. Das ist sicher, weil der Port nur auf Loopback lauscht.
 
+### Warum beantwortet Unbound abgelaufene Einträge sofort?
+Ein rekursiver Resolver ist nur dann schnell, wenn die Antwort schon im Cache liegt. Eine frische Auflösung kostet mehrere Anfragen an fremde Nameserver, typisch 50 bis 300 ms, bei langen CNAME-Ketten auch mehr.
+Große öffentliche Resolver haben Millionen Nutzer, dort ist fast jeder Name gerade frisch im Cache. Bei einem eigenen Resolver mit wenigen Nutzern läuft dagegen fast jeder Eintrag zwischen zwei Anfragen ab, weil viele Websites TTLs von nur 30 bis 300 Sekunden setzen.
+
+Deshalb liefert Unbound einen abgelaufenen Eintrag (höchstens 24 Stunden alt) sofort aus und erneuert ihn im Hintergrund (`serve-expired: yes`, `serve-expired-client-timeout: 0`). Die nächste Anfrage bekommt schon die frische Antwort.
+
+Der Preis: Hat sich die IP einer Website seit dem letzten Besuch geändert, bekommt die erste Anfrage noch die alte Adresse. Das Gerät darf sie nur 30 Sekunden behalten (`serve-expired-reply-ttl`).
+Wer das nicht will, setzt `serve-expired-client-timeout: 1800`. Dann löst Unbound erst bis zu 1,8 Sekunden lang neu auf und liefert die alte Antwort nur, wenn die fremden Nameserver nicht reagieren (RFC 8767). Das ist korrekter, aber spürbar langsamer.
+
 ### Warum das Unbound-Paket der Distribution und kein Docker-Container?
 - Sicherheitsupdates kommen automatisch über `apt` und `unattended-upgrades`.
 - Ubuntu liefert ein **AppArmor-Profil** mit. Selbst bei einer Lücke darf Unbound nur `/etc/unbound/**` lesen.

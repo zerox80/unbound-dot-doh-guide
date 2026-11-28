@@ -12,7 +12,7 @@
 | **DNS-Rebinding** (fremde Domain zeigt auf `192.168.x.x`, Website greift über den Browser den Router an) | `private-address` für RFC1918, CGNAT, Link-Local, ULA, IPv4-mapped | `10-public-resolver.conf` |
 | **Downgrade auf unsignierte Antworten** | `harden-dnssec-stripped: yes`: Fehlen bei einer signierten Zone die Signaturen, ist die Antwort ungültig | `10-public-resolver.conf` |
 | **Ausspähen der Software-Version** | `hide-identity`, `hide-version`, `hide-trustanchor` | `10-public-resolver.conf` |
-| **Überlastung durch einzelne Clients** | nginx `limit_req` 50/s pro IP, Burst 100, Antwort 429 | `dns-doh.conf` |
+| **Überlastung durch einzelne Clients** | nginx `limit_req` 100/s pro IP, Burst 400, Antwort 429 | `dns-doh.conf` |
 | **Verbindungsflut auf DoT** | `incoming-num-tcp: 200` pro Thread begrenzt die gleichzeitigen TCP-Verbindungen. Leerlauf-Verbindungen werden nach Timeout geschlossen. | `10-public-resolver.conf` |
 | **Diebstahl des TLS-Schlüssels** | Schlüssel `0640 root:unbound`, Verzeichnis `0750`. AppArmor sperrt Unbound auf `/etc/unbound/**` ein. | Deploy-Hook, AppArmor |
 | **Abgelaufenes Zertifikat** | Automatische Erneuerung durch certbot, Deploy-Hook übergibt an Unbound und nginx | certbot, `unbound-tls-deploy` |

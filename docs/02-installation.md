@@ -88,7 +88,7 @@ udp ... [::1]:53         tcp ... [::1]:53
 - **DoH-Backend nur auf Loopback.**
 - **Kein Logging.**
 - **DNSSEC und Härtung, Rebinding-Schutz, Rate-Limits.**
-- **Cache und Prefetch.**
+- **Cache, Prefetch und sofortige Antwort auch auf abgelaufene Einträge** ([Architektur](01-architektur.md#warum-beantwortet-unbound-abgelaufene-einträge-sofort)).
 
 Sofort testen:
 ```bash
@@ -176,7 +176,7 @@ nginx -t && systemctl reload nginx
 **Warum:**
 - **`access-control` in `20-dot.conf` erlaubt alle IPs:** DoT-Geräte kommen aus beliebigen Netzen (Mobilfunk, fremde WLANs). Port 53 bleibt trotzdem lokal, weil Unbound dort nur an Loopback gebunden ist.
 - **Unbound öffnet auf dem DoT-Port nur TCP.** Das prüft `ss`.
-- **Rate-Limit im nginx-vHost (50 Anfragen/s pro IP, Burst 100):** Unbound sieht bei DoH nur nginx als Absender und kann nicht pro Client bremsen.
+- **Rate-Limit im nginx-vHost (100 Anfragen/s pro IP, Burst 400):** Unbound sieht bei DoH nur nginx als Absender und kann nicht pro Client bremsen.
 - **Kein Access- und kein Error-Log im nginx-vHost.** Das Error-Log würde sonst bei Rate-Limit-Treffern Client-IP und URL schreiben, und bei DoH-GET steckt die angefragte Domain Base64-kodiert in der URL.
 
 ---

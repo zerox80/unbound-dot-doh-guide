@@ -60,8 +60,14 @@ Auswerten mit `journalctl -t dns-selftest`.
 | `num-threads` | 2 | Bei vielen Nutzern auf die Kernzahl erhöhen. Die `*-slabs` auf die nächste Zweierpotenz ≥ Threads setzen. |
 | `msg-cache-size` / `rrset-cache-size` | 64 MB / 128 MB | Mehr RAM bringt eine höhere Trefferquote. `rrset` sollte etwa das Doppelte von `msg` sein. |
 | `incoming-num-tcp` | 200 pro Thread | Erhöhen, wenn `total.tcpusage` dauerhaft hoch ist |
-| nginx `rate` / `burst` | 50/s, 100 | Erhöhen, wenn viele Nutzer hinter einer IP sitzen (z. B. Firmen-NAT) |
-| `serve-expired-client-timeout` | 1800 ms | Kleiner bedeutet schneller veraltete Antworten bei Ausfällen fremder Nameserver |
+| nginx `rate` / `burst` | 100/s, 400 | Erhöhen, wenn viele Nutzer hinter einer IP sitzen (z. B. Firmen-NAT). Ein Browser braucht pro Hostname bis zu drei Anfragen. |
+| nginx `keepalive_timeout` | 300 s | So lange bleibt eine DoH-Verbindung im Leerlauf offen. Kürzer spart Verbindungen, kostet aber nach jeder Pause einen neuen TLS-Handshake. |
+| `edns-tcp-keepalive-timeout` | 120000 ms | Dasselbe für DoT. Der Wert gilt für alle eingehenden TCP-Verbindungen und ersetzt `tcp-idle-timeout`. |
+| `serve-expired-client-timeout` | 0 | `0` beantwortet abgelaufene Einträge sofort und erneuert im Hintergrund. `1800` löst erst neu auf und liefert die alte Antwort nur bei Ausfällen ([Architektur](01-architektur.md#warum-beantwortet-unbound-abgelaufene-einträge-sofort)). |
+| `serve-expired-ttl` | 86400 s | Wie alt ein abgelaufener Eintrag höchstens sein darf. Bis 259200 (3 Tage) ist nach RFC 8767 üblich: mehr Treffer, aber ältere Antworten. |
+| `prefer-ip4` | yes | Auf `no` stellen, wenn der Server sauberes IPv6 hat und fremde Nameserver auch darüber gefragt werden sollen |
+
+Ob eine Änderung etwas bringt, zeigt `bash scripts/dns-speedtest.sh dns.example.com` ([Tests](06-tests.md#geschwindigkeit-messen-auf-dem-server)).
 
 Nach jeder Änderung: `unbound-checkconf && systemctl restart unbound`.
 
