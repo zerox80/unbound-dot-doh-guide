@@ -23,6 +23,28 @@ Exit-Code `0` = alles ok, `1` = mindestens ein Fehler. Damit eignet sich das Skr
 
 ---
 
+## Geschwindigkeit messen (auf dem Server)
+
+```bash
+bash scripts/dns-speedtest.sh dns.example.com
+```
+
+Der Selbsttest prüft, **ob** alles funktioniert. Dieses Skript misst, **wie schnell**, und zwar jede Schicht einzeln:
+
+| Abschnitt | Misst |
+|---|---|
+| Einstellungen | Ob die tempo-relevanten Optionen aktiv sind |
+| 1. Resolver selbst | Zehn bekannte Websites, einmal kalt (vorher aus dem Cache geworfen) und einmal aus dem Cache |
+| 2. Weg zu fremden Nameservern | Root-Server über IPv4/UDP, IPv4/TCP und IPv6 |
+| 3. Verschlüsselte Zugänge | DoT und DoH vom Server aus, mit neuer und mit bestehender Verbindung |
+| 4. Statistik | Cache-Trefferquote, Dauer der Rekursionen, SERVFAIL-Anteil seit dem letzten Start |
+
+Am Ende stehen Hinweise zu allem, was auffällt. Was die Werte bedeuten: [Fehlersuche](08-fehlersuche.md#der-resolver-fühlt-sich-langsam-an).
+
+Eigene Domains als weitere Argumente anhängen (ohne `www.`): `bash scripts/dns-speedtest.sh dns.example.com example.org example.net`
+
+---
+
 ## Manuelle Tests auf dem Server
 
 ```bash
@@ -53,9 +75,9 @@ ss -tulpn | grep unbound
 
 ```bash
 Q="https://dns.example.com/dns-query?dns=AAABAAABAAAAAAAAA3d3dwdleGFtcGxlA2NvbQAAAQAB"
-seq 1 400 | xargs -P 50 -I{} curl -s -o /dev/null -w '%{http_code}\n' -H 'accept: application/dns-message' "$Q" | sort | uniq -c
+seq 1 1500 | xargs -P 100 -I{} curl -s -o /dev/null -w '%{http_code}\n' -H 'accept: application/dns-message' "$Q" | sort | uniq -c
 ```
-Erwartet ist eine Mischung aus `200` und `429`. Wie viele `429` kommen, hängt vom Tempo ab.
+Erwartet ist eine Mischung aus `200` und `429`. Wie viele `429` kommen, hängt vom Tempo ab: Die ersten 400 Anfragen gehen immer durch (Burst), danach 100 pro Sekunde.
 Danach prüfen, dass **keine** neuen Zeilen in `/var/log/nginx/error.log` stehen.
 
 Die Zeichenkette hinter `dns=` ist die Beispielanfrage aus RFC 8484 (`www.example.com A`, Base64url).
